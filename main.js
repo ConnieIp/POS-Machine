@@ -57,6 +57,18 @@ function calculateSaving(buyItemList) {
     return saving;
 }
 
+function getDetailOfBuyItem(idList, productList, promotionList) {
+    let buyItems = countBuyItems(idList, productList);
+    let buyItemsWithSubTotalPrice = calculateSubTotalPrice(buyItems);
+    let buyItemWithPromotionSubTotalPrice = calculatePromotionSubTotalPrice(buyItemsWithSubTotalPrice, promotionList);
+    return buyItemWithPromotionSubTotalPrice;
+}
+
+// function printTable(buyItemList){
+//     let recipt='';
+//     recipt+=`***<store earning no money>Receipt ***`;
+//     receipt
+// }
 
 
 
@@ -113,4 +125,4 @@ function loadPromotions() {
     }];
 }
 
-module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal, calculateSaving };
+module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal, calculateSaving, getDetailOfBuyItem };
