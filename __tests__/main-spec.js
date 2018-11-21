@@ -24,3 +24,11 @@ describe('countBuyItems', function() {
         expect(result).toEqual([{ barcode: 'ITEM000002', name: 'Apple', unit: 'g', price: 5.50, quantity: 5 }]);
     });
 });
+
+describe('calculateSubTotalPrice', function() {
+    it(`Given [{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 2 }], When call calculateSubTotalPrice, Then return a buy item list [{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 2, subTotal: 6.00 }]`, function() {
+        let buyItemList = [{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 2 }];
+        let result = printReciept.calculateSubTotalPrice(buyItemList);
+        expect(result).toEqual([{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 2, subTotal: 6.00 }]);
+    });
+});
