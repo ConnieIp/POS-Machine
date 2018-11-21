@@ -35,27 +35,7 @@ function calculatePromotionSubTotalPrice(buyItemList, promotionList) {
     return buyItemList;
 }
 
-function calculateTotal(buyItemList) {
-    let total = 0;
-    buyItemList.forEach(item => {
-        if (item.promotionSubTotal != null) {
-            total += item.promotionSubTotal;
-        } else {
-            total += item.subTotal;
-        }
-    });
-    return total;
-}
 
-function calculateSaving(buyItemList) {
-    let saving = 0;
-    buyItemList.forEach(item => {
-        if (item.promotionSubTotal != null) {
-            saving += (item.subTotal - item.promotionSubTotal);
-        }
-    });
-    return saving;
-}
 
 
 
@@ -112,11 +92,4 @@ function loadPromotions() {
     }];
 }
 
-module.exports = {
-    loadAllItems,
-    loadPromotions,
-    countBuyItems,
-    calculateSubTotalPrice,
-    calculatePromotionSubTotalPrice,
-    calculateTotal
-};
+module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice };
