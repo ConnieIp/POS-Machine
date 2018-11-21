@@ -12,7 +12,13 @@ function countBuyItems(idList, productList) {
     let buyItemListWithWeight = productList.filter(product => idListWithWeight.map(x => x.split('-')[0]).includes(product.barcode));
     buyItemListWithWeight.forEach(item => {
         let weight = idListWithWeight.filter(id => id.split('-')[0] === item.barcode).map(x => parseFloat(x.split('-')[1])).reduce((a, b) => a + b, 0);
-        item['quantity'] = weight;
+        let existingBuyItem = buyItemListWithoutWeight.find(itemWithoutWeight => itemWithoutWeight.barcode === item.barcode)
+        if (existingBuyItem != null) {
+            item['quantity'] = existingBuyItem.quantity + weight;
+            buyItemListWithoutWeight.pop(x => x.barcode === item.barcode);
+        } else {
+            item['quantity'] = weight;
+        }
     });
 
     let buyItemList = buyItemListWithoutWeight.concat(buyItemListWithWeight);
@@ -83,6 +89,12 @@ function printTable(buyItemList) {
     return receipt;
 }
 
+function printReceipt(idList) {
+    let buyItemList = getDetailOfBuyItem(idList, loadAllItems(), loadPromotions());
+    let receipt = printTable(buyItemList);
+    console.log(receipt)
+    return receipt;
+}
 
 
 
@@ -96,7 +108,7 @@ function loadAllItems() {
         },
         {
             barcode: 'ITEM000001',
-            name: 'Sprike',
+            name: 'Sprite',
             unit: 'bottles',
             price: 3.00
         },
@@ -108,8 +120,8 @@ function loadAllItems() {
         },
         {
             barcode: 'ITEM000003',
-            name: 'Lychee',
-            unit: 'g',
+            name: 'Litchi',
+            unit: 'kg',
             price: 15.00
         },
         {
@@ -121,7 +133,7 @@ function loadAllItems() {
         {
             barcode: 'ITEM000005',
             name: 'Noodles',
-            unit: 'packs',
+            unit: 'bags',
             price: 4.50
         }
     ];
@@ -138,4 +150,4 @@ function loadPromotions() {
     }];
 }
 
-module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal, calculateSaving, getDetailOfBuyItem, printTable };
+module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal, calculateSaving, getDetailOfBuyItem, printTable, printReceipt };
