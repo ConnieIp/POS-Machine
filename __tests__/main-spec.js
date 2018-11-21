@@ -13,6 +13,6 @@ describe('countBuyItems', function() {
     it(`Given ['ITEM000002-2'] and product list, When call countBuyItems, Then return a buy item list [{barcode: 'ITEM000002', name:'Apple', unit:'g', price:5.50, quantity:2}]`, function() {
         let idList = ['ITEM000002-2'];
         let result = printReciept.countBuyItems(idList, printReciept.loadAllItems());
-        expect(result).toEqual([{ barcode: 'ITEM000002', name: 'Apple', unit: 'a', price: 5.50, quantity: 2 }]);
+        expect(result).toEqual([{ barcode: 'ITEM000002', name: 'Apple', unit: 'g', price: 5.50, quantity: 2 }]);
     });
 });
