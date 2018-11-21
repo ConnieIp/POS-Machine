@@ -57,3 +57,11 @@ describe('calculateSaving', function() {
         expect(result).toEqual(8.50);
     });
 });
+
+describe('getDetailOfBuyItem', function() {
+    it(`Given ['ITEM000001','ITEM000001','ITEM000001','ITEM000002-2'], When call calculateTotal, Then return 17.00`, function() {
+        let idList = ['ITEM000001', 'ITEM000001', 'ITEM000001', 'ITEM000002-3'];
+        let result = printReciept.getDetailOfBuyItem(idList, printReciept.loadAllItems(), printReciept.loadPromotions());
+        expect(result).toEqual([{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 3, subTotal: 9.00, promotionSubTotal: 6.00 }, { barcode: 'ITEM000002', name: 'Apple', unit: 'g', price: 5.50, quantity: 3, subTotal: 16.50 }]);
+    });
+});
