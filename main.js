@@ -47,6 +47,15 @@ function calculateTotal(buyItemList) {
     return total;
 }
 
+function calculateSaving(buyItemList) {
+    let saving = 0;
+    buyItemList.forEach(item => {
+        if (item.promotionSubTotal != null) {
+            saving += (item.subTotal - item.promotionSubTotal);
+        }
+    });
+    return saving;
+}
 
 
 
@@ -104,4 +113,4 @@ function loadPromotions() {
     }];
 }
 
-module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal };
+module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal, calculateSaving };
