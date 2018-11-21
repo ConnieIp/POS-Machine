@@ -19,6 +19,13 @@ function countBuyItems(idList, productList) {
     return buyItemList;
 }
 
+function calculateSubTotalPrice(buyItemList) {
+    buyItemList.forEach(item => {
+        item['subTotal'] = (item.quantity * item.price);
+    });
+    return buyItemList;
+}
+
 
 
 
@@ -76,4 +83,4 @@ function loadPromotions() {
     }];
 }
 
-module.exports = { loadAllItems, loadPromotions, countBuyItems };
+module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice };
