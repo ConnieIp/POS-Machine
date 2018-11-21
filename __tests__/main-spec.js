@@ -16,3 +16,11 @@ describe('countBuyItems', function() {
         expect(result).toEqual([{ barcode: 'ITEM000002', name: 'Apple', unit: 'g', price: 5.50, quantity: 2 }]);
     });
 });
+
+describe('countBuyItems', function() {
+    it(`Given ['ITEM000002-2', 'ITEM000002-3'] and product list, When call countBuyItems, Then return a buy item list [{barcode: 'ITEM000002', name:'Apple', unit:'g', price:5.50, quantity:5}]`, function() {
+        let idList = ['ITEM000002-2', 'ITEM000002-3'];
+        let result = printReciept.countBuyItems(idList, printReciept.loadAllItems());
+        expect(result).toEqual([{ barcode: 'ITEM000002', name: 'Apple', unit: 'g', price: 5.50, quantity: 5 }]);
+    });
+});
