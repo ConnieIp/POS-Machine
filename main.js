@@ -64,11 +64,24 @@ function getDetailOfBuyItem(idList, productList, promotionList) {
     return buyItemWithPromotionSubTotalPrice;
 }
 
-// function printTable(buyItemList){
-//     let recipt='';
-//     recipt+=`***<store earning no money>Receipt ***`;
-//     receipt
-// }
+function printTable(buyItemList) {
+    let receipt = '';
+    receipt += `***<store earning no money>Receipt ***\n`;
+    buyItemList.forEach(item => {
+        let subTotal;
+        if (item.promotionSubTotal != null) {
+            subTotal = item.promotionSubTotal;
+        } else {
+            subTotal = item.subTotal;
+        }
+        receipt += 'Name: ' + item.name + ', Quantity: ' + item.quantity + ' ' + item.unit + ', Unit price: ' + item.price.toFixed(2) + ' (yuan), Subtotal: ' + subTotal.toFixed(2) + ' (yuan)\n';
+    })
+    receipt += '----------------------\n';
+    receipt += 'Total: ' + calculateTotal(buyItemList).toFixed(2) + ' (yuan)\n';
+    receipt += 'Saving: ' + calculateSaving(buyItemList).toFixed(2) + ' (yuan)\n';
+    receipt += '**********************';
+    return receipt;
+}
 
 
 
@@ -125,4 +138,4 @@ function loadPromotions() {
     }];
 }
 
-module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal, calculateSaving, getDetailOfBuyItem };
+module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal, calculateSaving, getDetailOfBuyItem, printTable };
