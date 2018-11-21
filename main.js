@@ -1,7 +1,12 @@
 'use strict';
 
-
-
+function countBuyItems(idList, productList) {
+    let buyItemList = productList.filter(product => idList.includes(product.barcode));
+    buyItemList.forEach(item => {
+        item['quantity'] = (idList.filter(id => id === item.barcode)).length;
+    });
+    return buyItemList;
+}
 
 
 
@@ -10,38 +15,38 @@
 function loadAllItems() {
     return [{
             barcode: 'ITEM000000',
-            name: '可口可乐',
-            unit: '瓶',
+            name: 'Coca-cola',
+            unit: 'bottles',
             price: 3.00
         },
         {
             barcode: 'ITEM000001',
-            name: '雪碧',
-            unit: '瓶',
+            name: 'Sprike',
+            unit: 'bottles',
             price: 3.00
         },
         {
             barcode: 'ITEM000002',
-            name: '苹果',
-            unit: '斤',
+            name: 'Apple',
+            unit: 'g',
             price: 5.50
         },
         {
             barcode: 'ITEM000003',
-            name: '荔枝',
-            unit: '斤',
+            name: 'Lychee',
+            unit: 'g',
             price: 15.00
         },
         {
             barcode: 'ITEM000004',
-            name: '电池',
-            unit: '个',
+            name: 'Battery',
+            unit: 'a',
             price: 2.00
         },
         {
             barcode: 'ITEM000005',
-            name: '方便面',
-            unit: '袋',
+            name: 'Noodles',
+            unit: 'packs',
             price: 4.50
         }
     ];
@@ -58,4 +63,4 @@ function loadPromotions() {
     }];
 }
 
-module.exports = { loadAllItems, loadPromotions };
+module.exports = { loadAllItems, loadPromotions, countBuyItems };
