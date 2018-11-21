@@ -26,6 +26,15 @@ function calculateSubTotalPrice(buyItemList) {
     return buyItemList;
 }
 
+function calculatePromotionSubTotalPrice(buyItemList, promotionList) {
+    let buyTwoGetOneFreeList = promotionList.find(promotion => promotion.type === 'BUY_TWO_GET_ONE_FREE').barcodes;
+    buyItemList.filter(item => buyTwoGetOneFreeList.includes(item.barcode)).filter(item => item.quantity >= 3)
+        .forEach(item => {
+            item['promotionSubTotal'] = ((item.quantity - (item.quantity % 3)) / 3 * 2 * item.price) + ((item.quantity % 3) * item.price);
+        });
+    return buyItemList;
+}
+
 
 
 
@@ -83,4 +92,4 @@ function loadPromotions() {
     }];
 }
 
-module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice };
+module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice };
