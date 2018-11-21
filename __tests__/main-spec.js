@@ -32,3 +32,12 @@ describe('calculateSubTotalPrice', function() {
         expect(result).toEqual([{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 2, subTotal: 6.00 }]);
     });
 });
+
+
+describe('calculatePromotionSubTotalPrice', function() {
+    it(`Given [{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 3, subTotal: 9.00 }] and promotion list, When call calculateSubTotalPrice, Then return a buy item list [{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 3, subTotal: 9.00, promotionSubTotal: 6.00 }]`, function() {
+        let buyItemList = [{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 3, subTotal: 9.00 }];
+        let result = printReciept.calculatePromotionSubTotalPrice(buyItemList, printReciept.loadPromotions());
+        expect(result).toEqual([{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 3, subTotal: 9.00, promotionSubTotal: 6.00 }]);
+    });
+});
