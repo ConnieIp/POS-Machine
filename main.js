@@ -1,16 +1,25 @@
 'use strict';
 
 function countBuyItems(idList, productList) {
-    let buyItemList = productList.filter(product => idList.includes(product.barcode));
-    buyItemList.forEach(item => {
-        if (item.barcode.indexOf('-') >= 0) {
-            let
-        } else {
-            item['quantity'] = (idList.filter(id => id === item.barcode)).length;
-        }
+    let idListWithoutWeight = idList.filter(id => id.indexOf('-') < 0);
+    let idListWithWeight = idList.filter(id => id.indexOf('-') >= 0);
+
+    let buyItemListWithoutWeight = productList.filter(product => idListWithoutWeight.includes(product.barcode));
+    buyItemListWithoutWeight.forEach(item => {
+        item['quantity'] = (idList.filter(id => id === item.barcode)).length;
     });
+
+    let buyItemListWithWeight = productList.filter(product => idListWithWeight.map(x => x.split('-')[0]).includes(product.barcode));
+    buyItemListWithWeight.forEach(item => {
+        let weight = idListWithWeight.filter(id => id.split('-')[0] === item.barcode).map(x => parseFloat(x.split('-')[1])).reduce((a, b) => a + b, 0);
+        item['quantity'] = weight;
+    });
+
+    let buyItemList = buyItemListWithoutWeight.concat(buyItemListWithWeight);
     return buyItemList;
 }
+
+
 
 
 
