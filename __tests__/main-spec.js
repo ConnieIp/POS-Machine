@@ -65,3 +65,17 @@ describe('getDetailOfBuyItem', function() {
         expect(result).toEqual([{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 3, subTotal: 9.00, promotionSubTotal: 6.00 }, { barcode: 'ITEM000002', name: 'Apple', unit: 'g', price: 5.50, quantity: 3, subTotal: 16.50 }]);
     });
 });
+
+describe('printTable', function() {
+    it(`Given [{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 3, subTotal: 9.00, promotionSubTotal: 6.00 }, { barcode: 'ITEM000002', name: 'Apple', unit: 'g', price: 5.50, quantity: 3, subTotal: 16.50 }], When call calculateTotal, Then return 17.00`, function() {
+        let buyItemList = [{ barcode: 'ITEM000001', name: 'Sprike', unit: 'bottles', price: 3.00, quantity: 3, subTotal: 9.00, promotionSubTotal: 6.00 }, { barcode: 'ITEM000002', name: 'Apple', unit: 'g', price: 5.50, quantity: 3, subTotal: 16.50 }];
+        let result = printReciept.printTable(buyItemList);
+        expect(result).toEqual(`***<store earning no money>Receipt ***
+Name: Sprike, Quantity: 3 bottles, Unit price: 3.00 (yuan), Subtotal: 6.00 (yuan)
+Name: Apple, Quantity: 3 g, Unit price: 5.50 (yuan), Subtotal: 16.50 (yuan)
+----------------------
+Total: 22.50 (yuan)
+Saving: 3.00 (yuan)
+**********************`);
+    });
+});
