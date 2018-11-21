@@ -3,7 +3,11 @@
 function countBuyItems(idList, productList) {
     let buyItemList = productList.filter(product => idList.includes(product.barcode));
     buyItemList.forEach(item => {
-        item['quantity'] = (idList.filter(id => id === item.barcode)).length;
+        if (item.barcode.indexOf('-') >= 0) {
+            let
+        } else {
+            item['quantity'] = (idList.filter(id => id === item.barcode)).length;
+        }
     });
     return buyItemList;
 }
