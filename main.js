@@ -25,20 +25,17 @@ function countBuyItems(idList, productList) {
     return buyItemList;
 }
 
-function calculateSubTotalPrice(buyItemList) {
-    buyItemList.forEach(item => {
-        item['subTotal'] = (item.quantity * item.price);
-    });
-    return buyItemList;
+function calculateSubTotalPrice(item) {
+    item['subTotal'] = (item.quantity * item.price);
+    return item;
 }
 
-function calculatePromotionSubTotalPrice(buyItemList, promotionList) {
+function calculatePromotionSubTotalPrice(item, promotionList) {
     let buyTwoGetOneFreeList = promotionList.find(promotion => promotion.type === 'BUY_TWO_GET_ONE_FREE').barcodes;
-    buyItemList.filter(item => buyTwoGetOneFreeList.includes(item.barcode)).filter(item => item.quantity >= 3)
-        .forEach(item => {
-            item['promotionSubTotal'] = ((item.quantity - (item.quantity % 3)) / 3 * 2 * item.price) + ((item.quantity % 3) * item.price);
-        });
-    return buyItemList;
+    if (buyTwoGetOneFreeList.includes(item.barcode) && item.quantity >= 3) {
+        item['promotionSubTotal'] = ((item.quantity - (item.quantity % 3)) / 3 * 2 * item.price) + ((item.quantity % 3) * item.price);
+    }
+    return item;
 }
 
 function calculateTotal(buyItemList) {
@@ -65,9 +62,11 @@ function calculateSaving(buyItemList) {
 
 function getDetailOfBuyItem(idList, productList, promotionList) {
     let buyItems = countBuyItems(idList, productList);
-    let buyItemsWithSubTotalPrice = calculateSubTotalPrice(buyItems);
-    let buyItemWithPromotionSubTotalPrice = calculatePromotionSubTotalPrice(buyItemsWithSubTotalPrice, promotionList);
-    return buyItemWithPromotionSubTotalPrice;
+    buyItems.forEach(item => {
+        calculateSubTotalPrice(item);
+        calculatePromotionSubTotalPrice(item, promotionList);
+    });
+    return buyItems;
 }
 
 function printTable(buyItemList) {
