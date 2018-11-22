@@ -1,78 +1,33 @@
 'use strict';
 
-function countBuyItems(idList, productList) {
-    let idListWithoutWeight = idList.filter(id => id.indexOf('-') < 0);
-    let idListWithWeight = idList.filter(id => id.indexOf('-') >= 0);
-
-    let buyItemListWithoutWeight = productList.filter(product => idListWithoutWeight.includes(product.barcode));
-    buyItemListWithoutWeight.forEach(item => {
-        item['quantity'] = (idList.filter(id => id === item.barcode)).length;
-    });
-
-    let buyItemListWithWeight = productList.filter(product => idListWithWeight.map(x => x.split('-')[0]).includes(product.barcode));
-    buyItemListWithWeight.forEach(item => {
-        let weight = idListWithWeight.filter(id => id.split('-')[0] === item.barcode).map(x => parseFloat(x.split('-')[1])).reduce((a, b) => a + b, 0);
-        let existingBuyItem = buyItemListWithoutWeight.find(itemWithoutWeight => itemWithoutWeight.barcode === item.barcode)
-        if (existingBuyItem != null) {
-            item['quantity'] = existingBuyItem.quantity + weight;
-            buyItemListWithoutWeight.pop(x => x.barcode === item.barcode);
-        } else {
-            item['quantity'] = weight;
-        }
-    });
-
-    let buyItemList = buyItemListWithoutWeight.concat(buyItemListWithWeight);
-    return buyItemList;
+function buildGoodsCartList(barcodeList) {
+    let barcodeListWithQuantity = resolveBarcode(barcodeList);
+    return countGoods(barcodeListWithQuantity);
 }
 
-function calculateSubTotalPrice(item) {
-    item['subTotal'] = (item.quantity * item.price);
-    return item;
+function buildPurchasedGoods(purchasedGoods) {
+    let productList = loadAllItems();
+    return purchasedGoods.map(item => {
+        let searchItem = productList.find(product => product.barcode === item.barcode);
+        return Object.assign({}, searchItem, { quantity: item.quantity });
+    })
 }
 
-function calculatePromotionSubTotalPrice(item, promotionList) {
-    let buyTwoGetOneFreeList = promotionList.find(promotion => promotion.type === 'BUY_TWO_GET_ONE_FREE').barcodes;
-    if (buyTwoGetOneFreeList.includes(item.barcode) && item.quantity >= 3) {
-        item['promotionSubTotal'] = ((item.quantity - (item.quantity % 3)) / 3 * 2 * item.price) + ((item.quantity % 3) * item.price);
-    }
-    return item;
+function calculateGoodsPrice(purchasedGoodsWithDetail) {
+    let promotionList = loadPromotions();
+    let goodListWithsubTotal = calculateSubTotalPrice(purchasedGoodsWithDetail);
+    return calculatePromotionSubTotalPrice(goodListWithsubTotal, promotionList);
+
 }
 
-function calculateTotal(buyItemList) {
-    let total = 0;
-    buyItemList.forEach(item => {
-        if (item.promotionSubTotal != null) {
-            total += item.promotionSubTotal;
-        } else {
-            total += item.subTotal;
-        }
-    });
-    return total;
+function buildPrintReceipt(purchasedGoodsWithPrice) {
+    return { buyItemList: purchasedGoodsWithPrice, total: calculateReceiptTotalPrice(purchasedGoodsWithPrice), saving: calculateReceiptSaving(purchasedGoodsWithPrice) };
 }
 
-function calculateSaving(buyItemList) {
-    let saving = 0;
-    buyItemList.forEach(item => {
-        if (item.promotionSubTotal != null) {
-            saving += (item.subTotal - item.promotionSubTotal);
-        }
-    });
-    return saving;
-}
-
-function getDetailOfBuyItem(idList, productList, promotionList) {
-    let buyItems = countBuyItems(idList, productList);
-    buyItems.forEach(item => {
-        calculateSubTotalPrice(item);
-        calculatePromotionSubTotalPrice(item, promotionList);
-    });
-    return buyItems;
-}
-
-function printTable(buyItemList) {
+function formatReceipt(priceReceipt) {
     let receipt = '';
     receipt += `***<store earning no money>Receipt ***\n`;
-    buyItemList.forEach(item => {
+    priceReceipt.buyItemList.forEach(item => {
         let subTotal;
         if (item.promotionSubTotal != null) {
             subTotal = item.promotionSubTotal;
@@ -82,24 +37,111 @@ function printTable(buyItemList) {
         receipt += 'Name: ' + item.name + ', Quantity: ' + item.quantity + ' ' + item.unit + ', Unit price: ' + item.price.toFixed(2) + ' (yuan), Subtotal: ' + subTotal.toFixed(2) + ' (yuan)\n';
     })
     receipt += '----------------------\n';
-    receipt += 'Total: ' + calculateTotal(buyItemList).toFixed(2) + ' (yuan)\n';
-    receipt += 'Saving: ' + calculateSaving(buyItemList).toFixed(2) + ' (yuan)\n';
+    receipt += 'Total: ' + priceReceipt.total.toFixed(2) + ' (yuan)\n';
+    receipt += 'Saving: ' + priceReceipt.saving.toFixed(2) + ' (yuan)\n';
+    receipt += '**********************';
+    return receipt;
+}
+
+
+function resolveBarcode(barcodeList) {
+    return barcodeList.map(barcode =>
+        (barcode.includes('-')) ? { barcode: barcode.split('-')[0], quantity: parseFloat(barcode.split('-')[1]) } : { barcode, quantity: 1 }
+    );
+}
+
+
+function countGoods(purchasedGoods) {
+    let result = [];
+    purchasedGoods.forEach(itemfirstloop => {
+        if (!result.find(element => element.barcode === itemfirstloop.barcode)) {
+            let quan = 0;
+            purchasedGoods.filter(item => item.barcode === itemfirstloop.barcode).forEach(itemsecondloop => {
+                quan += itemsecondloop.quantity;
+            });
+            result.push({ barcode: itemfirstloop.barcode, quantity: quan });
+        }
+    });
+    return result;
+}
+
+function calculateSubTotalPrice(purchasedGoodsWithDetail) {
+    return purchasedGoodsWithDetail.map(item => Object.assign({}, item, { subTotal: item.price * item.quantity }));
+}
+
+function calculatePromotionSubTotalPrice(purchasedGoodsWithDetail, promotionList) {
+    let buyTwoGetOneFreeList = promotionList.find(promotion => promotion.type === 'BUY_TWO_GET_ONE_FREE').barcodes;
+    return purchasedGoodsWithDetail.map(item => {
+        if (buyTwoGetOneFreeList.includes(item.barcode) && item.quantity >= 3) {
+            return Object.assign({}, item, { promotionSubTotal: ((item.quantity - (item.quantity % 3)) / 3 * 2 * item.price) + ((item.quantity % 3) * item.price) });
+        } else {
+            return item;
+        }
+    });
+}
+
+function calculateReceiptTotalPrice(purchasedGoodsWithPrice) {
+    let total = 0;
+    purchasedGoodsWithPrice.forEach(item => {
+        if (item.promotionSubTotal != null) {
+            total += item.promotionSubTotal;
+        } else {
+            total += item.subTotal;
+        }
+    });
+    return total;
+}
+
+function calculateReceiptSaving(purchasedGoodsWithPrice) {
+    let saving = 0;
+    purchasedGoodsWithPrice.forEach(item => {
+        if (item.promotionSubTotal != null) {
+            saving += (item.subTotal - item.promotionSubTotal);
+        }
+    });
+    return saving;
+}
+
+function formatGoodInfo(priceReceipt) {
+    let receipt = '';
+    priceReceipt.buyItemList.forEach(item => {
+        let subTotal;
+        if (item.promotionSubTotal != null) {
+            subTotal = item.promotionSubTotal;
+        } else {
+            subTotal = item.subTotal;
+        }
+        receipt += 'Name: ' + item.name + ', Quantity: ' + item.quantity + ' ' + item.unit + ', Unit price: ' + item.price.toFixed(2) + ' (yuan), Subtotal: ' + subTotal.toFixed(2) + ' (yuan)\n';
+    })
+    return receipt;
+}
+
+function printFullReceipt(priceReceipt) {
+    let receipt = '';
+    receipt += `***<store earning no money>Receipt ***\n`;
+    receipt += formatGoodInfo(priceReceipt);
+    receipt += '----------------------\n';
+    receipt += 'Total: ' + priceReceipt.total.toFixed(2) + ' (yuan)\n';
+    receipt += 'Saving: ' + priceReceipt.saving.toFixed(2) + ' (yuan)\n';
     receipt += '**********************';
     return receipt;
 }
 
 function printReceipt(idList) {
-    let buyItemList = getDetailOfBuyItem(idList, loadAllItems(), loadPromotions());
-    let receipt = printTable(buyItemList);
-    console.log(receipt)
+    let buyItemList = buildGoodsCartList(idList);
+    let purchasedGoodsList = buildPurchasedGoods(buyItemList);
+    let purchasedGoodsWithPriceList = calculateGoodsPrice(purchasedGoodsList);
+    let receiptObject = buildPrintReceipt(purchasedGoodsWithPriceList);
+    console.log(receiptObject);
+    let receipt = printFullReceipt(receiptObject);
+    console.log(receipt);
     return receipt;
 }
 
 
-
-
 function loadAllItems() {
     return [{
+            barcode: 'ITEM000000',
             barcode: 'ITEM000000',
             name: 'Coca-cola',
             unit: 'bottles',
@@ -149,4 +191,17 @@ function loadPromotions() {
     }];
 }
 
-module.exports = { loadAllItems, loadPromotions, countBuyItems, calculateSubTotalPrice, calculatePromotionSubTotalPrice, calculateTotal, calculateSaving, getDetailOfBuyItem, printTable, printReceipt };
+module.exports = {
+    buildGoodsCartList,
+    buildPurchasedGoods,
+    resolveBarcode,
+    countGoods,
+    calculateGoodsPrice,
+    calculatePromotionSubTotalPrice,
+    calculateSubTotalPrice,
+    buildPrintReceipt,
+    printFullReceipt,
+    loadAllItems,
+    loadPromotions,
+    printReceipt
+};
